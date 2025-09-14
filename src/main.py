@@ -578,7 +578,7 @@ def ensure_output_directory(config: Config, output_filename: str) -> str:
     
     return full_output_path
 
-def save_predictions_as_csv(predictions: Dict[str, Dict[str, Any]], output_path: str) -> str:
+def save_predictions_as_csv(predictions: dict[str, dict[str, any]], output_path: str) -> str:
     """
     Save stock predictions as CSV instead of JSON format
     
