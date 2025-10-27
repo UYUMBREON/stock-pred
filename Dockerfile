@@ -50,6 +50,14 @@ ENV PYTHONUNBUFFERED=1
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 RUN chown -R appuser:appuser /app
 RUN chmod -R 755 /app
+
+RUN mkdir -p /app/cache /app/logs /app/models /app/output /app/processed_data \
+    && chown -R appuser:appgroup /app/cache \
+    && chown -R appuser:appgroup /app/logs \
+    && chown -R appuser:appgroup /app/models \
+    && chown -R appuser:appgroup /app/output \
+    && chown -R appuser:appgroup /app/processed_data
+    
 USER appuser
 
 # Default command (can be overridden)

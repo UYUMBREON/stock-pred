@@ -485,7 +485,7 @@ class ModelTrainer:
             X_train, y_train_categorical,
             epochs=self.config.model.epochs,
             batch_size=self.config.model.batch_size,
-            validation_split=validation_set,
+            validation_data=validation_set,
             callbacks=callbacks_list,
             verbose=1
         )
@@ -572,7 +572,7 @@ class ModelTrainer:
             X_train, y_train,
             epochs=self.config.model.epochs,
             batch_size=self.config.model.batch_size,
-            validation_split=validation_set,
+            validation_data=validation_set,
             callbacks=callbacks_list,
             verbose=1
         )
@@ -615,7 +615,7 @@ class ModelTrainer:
             X_train, y_train,
             epochs=self.config.model.epochs // 2,  # Fewer epochs for confidence model
             batch_size=self.config.model.batch_size,
-            validation_split=validation_set,
+            validation_data=validation_set,
             callbacks=callbacks_list,
             verbose=1
         )
