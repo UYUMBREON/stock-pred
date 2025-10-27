@@ -804,8 +804,13 @@ class Predictor:
         predictions = {}
         success_count = 0
         
-        for stock_code, stock_data in data_dict.items():
+        total_stocks = len(data_dict) # Get the total count
+
+        for i, (stock_code, stock_data) in enumerate(data_dict.items(), 1): # Start counting from 1
             try:
+                # This is your new progress message
+                logger.info(f"Predicting stock {i}/{total_stocks} : {stock_code}")
+
                 prediction = self.predict_stock(stock_data, stock_code)
                 predictions[stock_code] = prediction
                 
