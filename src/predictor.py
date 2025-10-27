@@ -710,6 +710,14 @@ class Predictor:
             Dict[str, Any]: Complete prediction results
         """
         try:
+            # --- FIX: Load models within the child process ---
+            # Check if models are loaded in this process. If not, load them.
+            # This prevents pickling loaded Keras models from the parent process.
+            if not self.models:
+                logger.info(f"Loading models for worker process (PID: {os.getpid()})")
+                self.load_models()
+            # --- END FIX ---
+
             logger.info(f"Generating predictions for {stock_code}")
             
             # Current market data

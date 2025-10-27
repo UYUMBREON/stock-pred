@@ -175,9 +175,12 @@ class StockPredictionSystem:
         stock_list, price_data = self.load_data()
         logger.info(f"Loaded price data for {len(price_data)} stocks")
         
-        # Load trained models into predictor
-        models_loaded = self.predictor.load_models()
-        logger.info(f"Loaded {models_loaded} models from disk" if models_loaded else "No models loaded, using fallback methods")
+        # --- FIX: DO NOT load models in the parent process ---
+        # This was causing the ProcessPoolExecutor to hang.
+        # Models will be loaded by each child process instead.
+        #
+        # models_loaded = self.predictor.load_models()
+        # logger.info(f"Loaded {models_loaded} models from disk" if models_loaded else "No models loaded, using fallback methods")
         
         predictions = {}
         
