@@ -924,7 +924,7 @@ class Predictor:
             if long_changes:
                 summary['price_change_predictions']['long_avg_change'] = float(np.mean(long_changes))
             
-            summary['generation_time'] = 'timestamp': datetime.now(JST).isoformat()
+            summary['generation_time'] = datetime.now(JST).isoformat()
             
             return summary
             
