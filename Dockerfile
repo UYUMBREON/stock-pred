@@ -3,6 +3,9 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
+# Add near the top, after the FROM line
+RUN apt-get update && apt-get install -y coreutils && rm -rf /var/lib/apt/lists/*
+
 # Install system dependencies for ML libraries
 RUN apt-get update && apt-get install -y \
     gcc \
