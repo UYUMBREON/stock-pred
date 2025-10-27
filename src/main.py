@@ -183,7 +183,13 @@ class StockPredictionSystem:
         
         self.logger.info("Adding features to price data for prediction...")
         featured_data = {}
-        for symbol, data in price_data.items():
+        total_stocks = len(price_data) # Get total count
+        
+        for i, (symbol, data) in enumerate(price_data.items()):
+            # --- ADD THIS LINE ---
+            self.logger.info(f"[{i+1}/{total_stocks}] Calculating indicators for {symbol}...")
+            # --- END ---
+            
             featured_data[symbol] = self.trend_analyzer.calculate_indicators(data)
 
         self.logger.info(f"Generating batch predictions for {len(featured_data)} stocks...")
