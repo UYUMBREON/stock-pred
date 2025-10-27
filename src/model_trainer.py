@@ -884,13 +884,13 @@ if __name__ == "__main__":
         if train_data:
             # Train models
             print("Training short-term model...")
-            model_trainer.train_short_term_model(train_data)
+            model_trainer.train_short_term_model(train_data, val_data)
             
             print("Training long-term model...")
-            model_trainer.train_long_term_model(train_data)
+            model_trainer.train_long_term_model(train_data, val_data)
             
             print("Training reversal models...")
-            model_trainer.train_reversal_models(train_data)
+            model_trainer.train_reversal_models(train_data, val_data)
             
             # Evaluate models
             if test_data:

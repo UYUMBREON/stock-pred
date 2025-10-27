@@ -10,7 +10,7 @@
   "model": {
     "short_term_window": 5,
     "long_term_window": 25,
-    "lookback_period": 60,
+    "lookback_period": 75,
     "hidden_layers": [64, 32, 16],
     "learning_rate": 0.001,
     "epochs": 60,

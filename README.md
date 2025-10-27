@@ -83,6 +83,9 @@ For each stock, the system provides:
 
 ### Command Line Interface
 
+####docker 権限
+docker exec -u root <CONTAINER_ID> chown -R appuser:appuser /app/data /app/output /app/models
+
 #### 1. Train Models
 Train neural networks on your stock data:
 ```bash
