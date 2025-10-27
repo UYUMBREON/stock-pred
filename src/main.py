@@ -19,7 +19,7 @@ import logging
 import re
 import json
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
@@ -37,6 +37,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+JST = timezone(timedelta(hours=9))
 
 def setup_logging(log_level: str) -> None:
     """
@@ -347,7 +348,7 @@ def save_predictions_as_csv(predictions: dict[str, dict[str, any]], output_path:
             record = {
                 'stock_code': stock_code,
                 'error': prediction['error'],
-                'timestamp': prediction.get('timestamp', datetime.now().isoformat()),
+                'timestamp': prediction.get('timestamp', datetime.now(JST).isoformat()),
                 'short_trend': None,
                 'long_trend': None,
                 'short_reversal_price': None,
@@ -364,7 +365,7 @@ def save_predictions_as_csv(predictions: dict[str, dict[str, any]], output_path:
             record = {
                 'stock_code': stock_code,
                 'error': None,
-                'timestamp': prediction.get('timestamp', datetime.now().isoformat()),
+                'timestamp': prediction.get('timestamp', datetime.now(JST).isoformat()),
                 'short_trend': prediction.get('short_trend'),
                 'long_trend': prediction.get('long_trend'),
                 'short_reversal_price': prediction.get('short_reversal_price'),

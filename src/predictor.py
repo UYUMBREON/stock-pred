@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import logging
 from typing import Dict, List, Tuple, Optional, Any, Union
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 import json
 from scipy import stats
 from scipy.signal import find_peaks
@@ -42,6 +42,7 @@ except ImportError:
 
 warnings.filterwarnings('ignore')
 logger = logging.getLogger(__name__)
+JST = timezone(timedelta(hours=9))
 
 class Predictor:
     """
@@ -789,7 +790,7 @@ class Predictor:
             return {
                 'stock_code': stock_code,
                 'error': str(e),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now(JST).isoformat()
             }
     
     def batch_predict(self, data_dict: Dict[str, pd.DataFrame]) -> Dict[str, Dict[str, Any]]:
@@ -826,7 +827,7 @@ class Predictor:
                     predictions[stock_code] = {
                         'stock_code': stock_code,
                         'error': str(e),
-                        'timestamp': datetime.now().isoformat()
+                        'timestamp': datetime.now(JST).isoformat()
                     }
 
         logger.info(f"Parallel batch prediction completed: {success_count}/{len(data_dict)} successful")
@@ -923,7 +924,7 @@ class Predictor:
             if long_changes:
                 summary['price_change_predictions']['long_avg_change'] = float(np.mean(long_changes))
             
-            summary['generation_time'] = datetime.now().isoformat()
+            summary['generation_time'] = 'timestamp': datetime.now(JST).isoformat()
             
             return summary
             
