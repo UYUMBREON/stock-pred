@@ -6,6 +6,7 @@ import datetime
 from pathlib import Path
 
 import pandas as pd
+from src.config import Config
 
 pd.set_option("display.max_columns", None)
 
@@ -18,10 +19,14 @@ if not refreshtoken:
     print("Please create a .env file with your refresh token.")
     sys.exit(1)
 
+# Load configuration
+config = Config("/app/config.json")
+
 # Create data directory if it doesn't exist
-data_dir = Path("/app/data")
-price_data_dir = Path("/app/data/price_data")
+data_dir = Path(os.path.dirname(config.data.stock_list_path)) # /app/data
+price_data_dir = Path(config.data.price_data_path) # /app/data/price_data/
 data_dir.mkdir(exist_ok=True)
+price_data_dir.mkdir(exist_ok=True) # Make sure price data dir is also created
 
 # idToken取得
 res = requests.post(f"{API_URL}/v1/token/auth_refresh?refreshtoken={refreshtoken}")
@@ -55,7 +60,7 @@ if res.status_code == 200:
     print(f"Found {len(list_df)} companies")
     
     # Save to data directory
-    list_csv_path = data_dir / "stock_list.csv"
+    list_csv_path = Path(config.data.stock_list_path) # <-- Use config
     list_df.to_csv(list_csv_path, index=False)
     print(f"Stock list saved to: {list_csv_path}")
 else:
@@ -139,7 +144,7 @@ for filename in os.listdir(price_data_dir):
 # stock_list.csvから削除されたコードの行を除外
 if deleted_codes:
     print(f"\nRemoving {len(deleted_codes)} codes from stock_list.csv...")
-    list_csv_path = data_dir / "stock_list.csv"
+    list_csv_path = Path(config.data.stock_list_path)
     list_df = pd.read_csv(list_csv_path)
     original_count = len(list_df)
     

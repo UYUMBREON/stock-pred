@@ -659,6 +659,11 @@ class ModelTrainer:
         
         # Model checkpoint
         checkpoint_path = self.config.get_model_path(f"{model_name}_checkpoint")
+        # --- FIX: Change .h5 to .keras to avoid legacy warning ---
+        if checkpoint_path.endswith('.h5'):
+            checkpoint_path = checkpoint_path.replace('.h5', '.keras')
+        # --- End Fix ---
+            
         model_checkpoint = callbacks.ModelCheckpoint(
             filepath=checkpoint_path,
             monitor='val_loss',
@@ -666,7 +671,6 @@ class ModelTrainer:
             save_weights_only=False,
             verbose=1
         )
-        callbacks_list.append(model_checkpoint)
         
         return callbacks_list
     
@@ -752,11 +756,22 @@ class ModelTrainer:
             try:
                 # Save model
                 model_path = self.config.get_model_path(model_name)
+                # --- FIX: Change .h5 to .keras ---
+                if model_path.endswith('.h5'):
+                    model_path = model_path.replace('.h5', '.keras')
+                # --- End Fix ---
                 model.save(model_path)
                 
                 # Save training history
                 history_path = self.config.get_model_path(f"{model_name}_history")
-                with open(history_path.replace('.h5', '.json'), 'w') as f:
+                
+                # --- FIX: Robust path for history JSON file ---
+                # This splits "path/history.h5" into ("path/history", ".h5")
+                base_history_path, _ = os.path.splitext(history_path)
+                history_json_path = base_history_path + '.json'
+                # --- End Fix ---
+
+                with open(history_json_path, 'w') as f:
                     json.dump(self.model_history.get(model_name, {}), f, indent=2)
                 
                 logger.info(f"Saved {model_name} to {model_path}")

@@ -570,7 +570,3 @@ if __name__ == "__main__":
     # Split data
     train_data, val_data, test_data = data_manager.split_data()
     print(f"Split - Train: {len(train_data)}, Val: {len(val_data)}, Test: {len(test_data)}")
-    
-    # Prepare features
-    prepared_data = data_manager.prepare_features(train_data)
-    print(f"Prepared features for {len(prepared_data)} stocks")

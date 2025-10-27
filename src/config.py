@@ -81,11 +81,6 @@ class PredictionConfig:
     reversal_sensitivity: float = 0.02
     volatility_window: int = 20
     
-    # *** ADD THESE THREE LINES ***
-    bailout_volatility_multiplier: float = 2.0
-    bailout_return_multiplier: float = 3.0
-    bailout_fixed_pct: float = 0.08
-    
     # Output settings
     decimal_places: int = 2
     include_intermediate_values: bool = False

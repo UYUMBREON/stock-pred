@@ -86,7 +86,7 @@ class Predictor:
         self.trend_analyzer = trend_analyzer
         self.data_manager = data_manager
     
-    def load_models(self, model_trainer=None) -> bool:
+    def load_models(self) -> bool:
         """
         Load trained models for prediction
         
