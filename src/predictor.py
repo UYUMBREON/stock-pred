@@ -18,6 +18,9 @@ from scipy.signal import find_peaks
 import warnings
 import os  # This was missing and causing the "name 'os' is not defined" error
 import joblib  # For model serialization if not using TensorFlow
+import concurrent.futures
+import pandas as pd
+from typing import Dict, Any
 
 # TensorFlow/Keras imports with error handling
 try:
@@ -791,42 +794,42 @@ class Predictor:
     
     def batch_predict(self, data_dict: Dict[str, pd.DataFrame]) -> Dict[str, Dict[str, Any]]:
         """
-        Generate predictions for multiple stocks
-        
-        Args:
-            data_dict (Dict[str, pd.DataFrame]): Stock data for multiple stocks
-            
-        Returns:
-            Dict[str, Dict[str, Any]]: Predictions for all stocks
+        Generate predictions for multiple stocks in parallel.
         """
-        logger.info(f"Generating batch predictions for {len(data_dict)} stocks")
-        
+        logger.info(f"Generating parallel batch predictions for {len(data_dict)} stocks")
+
         predictions = {}
-        success_count = 0
-        
-        total_stocks = len(data_dict) # Get the total count
+        # Use max_workers=8 to match the e2-standard-8 VM's vCPUs
+        with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
+            # Create a dictionary to map futures to stock codes
+            future_to_stock = {
+                executor.submit(self.predict_stock, stock_data, stock_code): stock_code
+                for stock_code, stock_data in data_dict.items()
+            }
 
-        for i, (stock_code, stock_data) in enumerate(data_dict.items(), 1): # Start counting from 1
-            try:
-                # This is your new progress message
-                logger.info(f"Predicting stock {i}/{total_stocks} : {stock_code}")
+            total_stocks = len(data_dict)
+            completed_count = 0
+            success_count = 0
 
-                prediction = self.predict_stock(stock_data, stock_code)
-                predictions[stock_code] = prediction
-                
-                if 'error' not in prediction:
-                    success_count += 1
-                    
-            except Exception as e:
-                logger.error(f"Error in batch prediction for {stock_code}: {e}")
-                predictions[stock_code] = {
-                    'stock_code': stock_code,
-                    'error': str(e),
-                    'timestamp': datetime.now().isoformat()
-                }
-        
-        logger.info(f"Batch prediction completed: {success_count}/{len(data_dict)} successful")
-        
+            # Process results as they complete
+            for future in concurrent.futures.as_completed(future_to_stock):
+                stock_code = future_to_stock[future]
+                completed_count += 1
+                try:
+                    result = future.result()
+                    predictions[stock_code] = result
+                    if 'error' not in result:
+                        success_count += 1
+                    logger.info(f"Completed prediction for {stock_code} ({completed_count}/{total_stocks})")
+                except Exception as e:
+                    logger.error(f"Error in parallel prediction for {stock_code}: {e}")
+                    predictions[stock_code] = {
+                        'stock_code': stock_code,
+                        'error': str(e),
+                        'timestamp': datetime.now().isoformat()
+                    }
+
+        logger.info(f"Parallel batch prediction completed: {success_count}/{len(data_dict)} successful")
         return predictions
     
     def get_prediction_summary(self, predictions: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
