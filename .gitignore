@@ -54,7 +54,7 @@ Thumbs.db
 .dockerignore
 
 # Models
-models/
+# models/
 
 # outputs
 output/
