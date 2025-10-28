@@ -19,7 +19,7 @@ import json
 import pickle
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, accuracy_score, classification_report
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 import joblib
 
 # TensorFlow/Keras imports
@@ -59,6 +59,8 @@ class ModelTrainer:
         self.model_history = {}
         self.label_encoders = {}
         self.feature_columns = {}
+        self.scaler = StandardScaler()
+        self.scaler_path = os.path.join(self.config.system.model_save_path, 'feature_scaler.gz')
         
         # Set TensorFlow settings
         if TENSORFLOW_AVAILABLE:
@@ -81,7 +83,7 @@ class ModelTrainer:
         except Exception as e:
             logger.warning(f"GPU configuration failed: {e}")
     
-    def prepare_training_data(self, data: Dict[str, pd.DataFrame]) -> Dict[str, Any]:
+    def prepare_training_data(self, data: Dict[str, pd.DataFrame],fit_scaler: bool = False) -> Dict[str, Any]:
         """
         Prepare data for neural network training
         
@@ -136,9 +138,20 @@ class ModelTrainer:
                     X_combined = np.vstack(model_data['X'])
                     y_combined = np.hstack(model_data['y'])
                     
+                    X_scaled = None
+                    if fit_scaler:
+                        X_scaled = self.scaler.fit_transform(X_combined)
+                        logger.info(f"Scaler fitted on {model_name} data.")
+                    else:
+                        try:
+                            X_scaled = self.scaler.transform(X_combined)
+                        except Exception as e:
+                            logger.error(f"Error transforming data with scaler: {e}. Scaler may not be fitted. Set fit_scaler=True on training data.")
+                            X_scaled = X_combined
+
                     # Create sequences for time series prediction
                     X_seq, y_seq = self._create_sequences(
-                        X_combined, y_combined, 
+                        X_scaled, y_combined, 
                         sequence_length=self.config.model.lookback_period
                     )
                     
@@ -387,7 +400,7 @@ class ModelTrainer:
             return
         
         logger.info("Preparing training data for short-term model")
-        training_data = self.prepare_training_data(data)
+        training_data = self.prepare_training_data(data, fit_scaler=True)
         X_train = training_data['short_trend_classifier']['X']
         y_train = training_data['short_trend_classifier']['y']
         
@@ -395,7 +408,7 @@ class ModelTrainer:
         validation_set = None
         if validation_data:
             logger.info("Preparing validation data for short-term model")
-            val_prep = self.prepare_training_data(validation_data)
+            val_prep = self.prepare_training_data(validation_data, fit_scaler=False)
             if 'short_trend_classifier' in val_prep and len(val_prep['short_trend_classifier']['X']) > 0:
                 X_val = val_prep['short_trend_classifier']['X']
                 y_val = val_prep['short_trend_classifier']['y']
@@ -446,7 +459,7 @@ class ModelTrainer:
         logger.info("Training long-term trend model")
         
         # Prepare training data
-        training_data = self.prepare_training_data(data)
+        training_data = self.prepare_training_data(data, fit_scaler=True)
         
         if 'long_trend_classifier' not in training_data:
             logger.error("No data prepared for long-term trend model")
@@ -472,7 +485,7 @@ class ModelTrainer:
         validation_set = None
         if validation_data:
             logger.info("Preparing validation data for long-term model")
-            val_prep = self.prepare_training_data(validation_data)
+            val_prep = self.prepare_training_data(validation_data, fit_scaler=False)
             if 'long_trend_classifier' in val_prep and len(val_prep['long_trend_classifier']['X']) > 0:
                 X_val = val_prep['long_trend_classifier']['X']
                 y_val = val_prep['long_trend_classifier']['y']
@@ -510,12 +523,12 @@ class ModelTrainer:
         logger.info("Training reversal price prediction models")
         
         # Prepare training data
-        training_data = self.prepare_training_data(data)
+        training_data = self.prepare_training_data(data, fit_scaler=True)
 
         val_prep = {}
         if validation_data:
             logger.info("Preparing validation data for reversal models")
-            val_prep = self.prepare_training_data(validation_data)
+            val_prep = self.prepare_training_data(validation_data, fit_scaler=False)
         
         # Train short reversal model
         if 'short_reversal_regressor' in training_data:
@@ -691,7 +704,7 @@ class ModelTrainer:
         logger.info("Evaluating trained models")
         
         # Prepare test data
-        test_datasets = self.prepare_training_data(test_data)
+        test_datasets = self.prepare_training_data(test_data, fit_scaler=False)
         
         evaluation_results = {}
         
@@ -778,7 +791,13 @@ class ModelTrainer:
                 
             except Exception as e:
                 logger.error(f"Error saving {model_name}: {e}")
-        
+
+        try:
+            joblib.dump(self.scaler, self.scaler_path)
+            logger.info(f"Saved feature scaler to {self.scaler_path}")
+        except Exception as e:
+            logger.error(f"Error saving feature scaler: {e}")
+
         # Save metadata
         metadata = {
             'models': list(self.models.keys()),
@@ -816,6 +835,15 @@ class ModelTrainer:
             with open(metadata_path, 'r') as f:
                 metadata = json.load(f)
             
+            if os.path.exists(self.scaler_path):
+                try:
+                    self.scaler = joblib.load(self.scaler_path)
+                    logger.info(f"Loaded feature scaler from {self.scaler_path}")
+                except Exception as e:
+                    logger.error(f"Error loading feature scaler: {e}")
+            else:
+                logger.warning(f"Feature scaler file not found at {self.scaler_path}. You may need to retrain.")
+                
             # Load models
             loaded_models = 0
             for model_name in metadata.get('models', []):

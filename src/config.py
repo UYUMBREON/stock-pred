@@ -42,7 +42,7 @@ class ModelConfig:
     
     # Neural network architecture
     hidden_layers: List[int] = None
-    dropout_rate: float = 0.2
+    dropout_rate: float = 0.4
     activation: str = "relu"
     output_activation: str = "linear"
     
@@ -61,7 +61,7 @@ class ModelConfig:
     def __post_init__(self):
         """Set default values for list fields"""
         if self.hidden_layers is None:
-            self.hidden_layers = [64, 32, 16]
+            self.hidden_layers = [32, 16, 8]
         if self.metrics is None:
             self.metrics = ["mae", "mse"]
 
