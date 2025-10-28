@@ -51,12 +51,16 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 RUN chown -R appuser:appuser /app
 RUN chmod -R 755 /app
 
+RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser # Use --no-log-init for slim images
+RUN chown -R appuser:appuser /app
+
 RUN mkdir -p /app/cache /app/logs /app/models /app/output /app/processed_data \
-    && chown -R appuser:appgroup /app/cache \
-    && chown -R appuser:appgroup /app/logs \
-    && chown -R appuser:appgroup /app/models \
-    && chown -R appuser:appgroup /app/output \
-    && chown -R appuser:appgroup /app/processed_data
+    && chown -R appuser:appuser /app/cache \
+    && chown -R appuser:appuser /app/logs \
+    && chown -R appuser:appuser /app/models \
+    && chown -R appuser:appuser /app/output \
+    && chown -R appuser:appuser /app/processed_data \
+    && chmod -R 755 /app
     
 USER appuser
 
