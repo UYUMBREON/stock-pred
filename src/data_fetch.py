@@ -6,7 +6,7 @@ import datetime
 from pathlib import Path
 
 import pandas as pd
-from src.config import Config
+from config import Config
 
 pd.set_option("display.max_columns", None)
 
