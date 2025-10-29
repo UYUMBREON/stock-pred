@@ -83,11 +83,16 @@ For each stock, the system provides:
 
 ### Command Line Interface
 
-####docker 権限
+#### docker 権限
 docker exec -u root <CONTAINER_ID> chown -R appuser:appuser /app/data /app/output /app/models /app/cache /app/logs /app/processed_data
 
 docker exec -u root a7f520272d83 chown -R appuser:appuser /app/data /app/output /app/models /app/cache /app/logs /app/processed_data
 a7f520272d83
+
+#### SSHセッション無視実行
+nohup python src/main.py --mode train > /app/logs/train_output.log 2>&1 &
+tail -f /app/logs/train_output.log
+
 #### 1. Train Models
 Train neural networks on your stock data:
 ```bash

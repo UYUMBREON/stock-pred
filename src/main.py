@@ -93,12 +93,12 @@ class StockPredictionSystem:
         
         # Load price data for all stocks (limited to first 50 for testing)
         #Limited data version
-        if True:
+        if False:
             limited_stocks = stock_list["Code"].head(100).tolist()
             price_data = self.data_manager.load_price_data(limited_stocks)
 
         #Full data version
-        if False:
+        if True:
             stocks = stock_list["Code"].tolist()
             price_data = self.data_manager.load_price_data(stocks)
         
