@@ -6,7 +6,7 @@
     "long_reversal_regressor",
     "confidence_estimator"
   ],
-  "training_date": "2025-10-27T12:14:58.931049",
+  "training_date": "2025-10-29T12:33:42.352540",
   "config": {
     "data": {
       "stock_list_path": "/app/data/stock_list.csv",
@@ -21,14 +21,14 @@
     "model": {
       "short_term_window": 5,
       "long_term_window": 25,
-      "lookback_period": 60,
+      "lookback_period": 75,
       "prediction_horizon": 1,
       "hidden_layers": [
         64,
         32,
         16
       ],
-      "dropout_rate": 0.2,
+      "dropout_rate": 0.4,
       "activation": "relu",
       "output_activation": "linear",
       "learning_rate": 0.001,
