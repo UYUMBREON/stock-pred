@@ -50,9 +50,6 @@ ENV PYTHONUNBUFFERED=1
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 RUN chown -R appuser:appuser /app
 RUN chmod -R 755 /app
-
-RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser # Use --no-log-init for slim images
-RUN chown -R appuser:appuser /app
     
 USER appuser
 
