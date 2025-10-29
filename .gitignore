@@ -41,7 +41,7 @@ ENV/
 .env.*.local
 
 # Data files (uncomment if you don't want to track data)
-data/
+# data/
 
 # Outout files
 output/ 
