@@ -274,7 +274,7 @@ class Config:
         Returns:
             str: Full path to model file
         """
-        return os.path.join(self.system.model_save_path, f"{model_name}.h5")
+        return os.path.join(self.system.model_save_path, f"{model_name}.keras")
     
     def get_output_path(self, filename: str) -> str:
         """

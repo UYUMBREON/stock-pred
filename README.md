@@ -99,6 +99,8 @@ Train neural networks on your stock data:
 python main.py --mode train
 ```
 
+nohup python src/main.py --mode predict --output predictions.json > /app/logs/train_output.log 2>&1 &
+tail -f /app/logs/train_output.log
 #### 2. Generate Predictions
 Predict trends for all stocks:
 ```bash

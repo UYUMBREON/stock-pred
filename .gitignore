@@ -44,7 +44,7 @@ ENV/
 # data/
 
 # Outout files
-output/ 
+# output/ 
 
 # OS
 .DS_Store
