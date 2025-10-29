@@ -149,7 +149,10 @@ class Predictor:
             base_features = [
                 'open', 'high', 'low', 'close', 'volume',
                 'return_1d', 'volatility_5d', 'volatility_20d',
-                'rsi', 'macd', 'macd_signal'
+                'rsi', 'macd', 'macd_signal',
+                'short_trend_slope', 'long_trend_slope',
+                'short_trend_strength', 'long_trend_strength',
+                'trend_agreement', 'ma_convergence'
             ]
             
             # Filter features that exist in the data
