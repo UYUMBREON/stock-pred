@@ -679,7 +679,7 @@ class Predictor:
                     'short_trend': max(set(short_trends), key=short_trends.count),
                     'long_trend': max(set(long_trends), key=long_trends.count),
                     'short_confidence': np.mean([p['short_confidence'] for p in predictions]),
-                    'long_confidence': np.mean([p['long_confidence'] for p in predictions]),
+                    # 'long_confidence': np.mean([p['long_confidence'] for p in predictions]),
                     'ensemble_confidence': np.mean(confidences)
                 }
                 
@@ -687,13 +687,13 @@ class Predictor:
                 # Average for reversal prices
                 ensemble_result = {
                     'short_reversal_price': np.mean([p['short_reversal_price'] for p in predictions]),
-                    'long_reversal_price': np.mean([p['long_reversal_price'] for p in predictions]),
+                    # 'long_reversal_price': np.mean([p['long_reversal_price'] for p in predictions]),
                     'short_confidence': np.mean([p['short_confidence'] for p in predictions]),
-                    'long_confidence': np.mean([p['long_confidence'] for p in predictions]),
+                    # 'long_confidence': np.mean([p['long_confidence'] for p in predictions]),
                     'ensemble_confidence': np.mean(confidences),
                     'price_std': {
                         'short': np.std([p['short_reversal_price'] for p in predictions]),
-                        'long': np.std([p['long_reversal_price'] for p in predictions])
+                        # 'long': np.std([p['long_reversal_price'] for p in predictions])
                     }
                 }
             
