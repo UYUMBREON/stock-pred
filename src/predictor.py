@@ -599,6 +599,7 @@ class Predictor:
         """
         return self.predict_reversal_price(data, 'short')
     
+    '''
     def predict_long_reversal(self, data: pd.DataFrame) -> Dict[str, Any]:
         """
         Predict long-term reversal price
@@ -610,6 +611,7 @@ class Predictor:
             Dict[str, Any]: Long-term reversal prediction
         """
         return self.predict_reversal_price(data, 'long')
+    '''
     
     def generate_ensemble_prediction(self, data: pd.DataFrame, prediction_type: str) -> Dict[str, Any]:
         """
@@ -733,15 +735,15 @@ class Predictor:
             
             # Reversal price predictions
             short_reversal = self.predict_short_reversal(data)
-            long_reversal = self.predict_long_reversal(data)
+            # long_reversal = self.predict_long_reversal(data)
             
             # Confidence ratings
             short_confidence = self.calculate_confidence(data, 'short')
-            long_confidence = self.calculate_confidence(data, 'long')
+            # long_confidence = self.calculate_confidence(data, 'long')
             
             # *** NEW: Calculate Bailout Points ***
             short_bailout_point = self._calculate_bailout_point(data, current_price, short_trend['trend'])
-            long_bailout_point = self._calculate_bailout_point(data, current_price, long_trend['trend'])
+            # long_bailout_point = self._calculate_bailout_point(data, current_price, long_trend['trend'])
             
             prediction_result = {
                 'stock_code': stock_code,
@@ -754,22 +756,22 @@ class Predictor:
                 
                 # Reversal price predictions
                 'short_reversal_price': short_reversal['price'],
-                'long_reversal_price': long_reversal['price'],
+                # 'long_reversal_price': long_reversal['price'],
                 
                 # *** NEW: Bailout points ***
                 'short_bailout_point': short_bailout_point,
-                'long_bailout_point': long_bailout_point,
+                # 'long_bailout_point': long_bailout_point,
                 
                 # Confidence ratings (0-100%)
                 'short_confidence': short_confidence,
-                'long_confidence': long_confidence,
+                # 'long_confidence': long_confidence,
                 
                 # Additional metadata
                 'prediction_methods': {
                     'short_trend_method': short_trend.get('method', 'unknown'),
                     'long_trend_method': long_trend.get('method', 'unknown'),
-                    'short_reversal_method': short_reversal.get('method', 'unknown'),
-                    'long_reversal_method': long_reversal.get('method', 'unknown')
+                    'short_reversal_method': short_reversal.get('method', 'unknown')
+                    #'long_reversal_method': long_reversal.get('method', 'unknown')
                 },
                 
                 'data_quality': {
@@ -896,21 +898,21 @@ class Predictor:
                 
                 # Confidence statistics
                 short_conf = prediction.get('short_confidence', 50)
-                long_conf = prediction.get('long_confidence', 50)
+                # long_conf = prediction.get('long_confidence', 50)
                 
                 short_confidences.append(short_conf)
-                long_confidences.append(long_conf)
+                # long_confidences.append(long_conf)
                 
                 # Price change predictions
                 current_price = prediction.get('current_price', 0)
                 short_reversal = prediction.get('short_reversal_price', current_price)
-                long_reversal = prediction.get('long_reversal_price', current_price)
+                # long_reversal = prediction.get('long_reversal_price', current_price)
                 
                 if current_price > 0:
                     short_change = (short_reversal - current_price) / current_price
-                    long_change = (long_reversal - current_price) / current_price
+                    # long_change = (long_reversal - current_price) / current_price
                     short_changes.append(short_change)
-                    long_changes.append(long_change)
+                    # long_changes.append(long_change)
             
             # Calculate confidence statistics
             if short_confidences:
@@ -921,6 +923,7 @@ class Predictor:
                     'max': float(np.max(short_confidences))
                 }
             
+            '''
             if long_confidences:
                 summary['confidence_stats']['long'] = {
                     'mean': float(np.mean(long_confidences)),
@@ -928,6 +931,7 @@ class Predictor:
                     'min': float(np.min(long_confidences)),
                     'max': float(np.max(long_confidences))
                 }
+            '''
             
             # Calculate price change statistics
             if short_changes:

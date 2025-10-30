@@ -361,11 +361,11 @@ def save_predictions_as_csv(predictions: dict[str, dict[str, any]], output_path:
                 'short_trend': None,
                 'long_trend': None,
                 'short_reversal_price': None,
-                'long_reversal_price': None,
+                # 'long_reversal_price': None,
                 'short_bailout_point': None,
-                'long_bailout_point': None,
+                # 'long_bailout_point': None,
                 'short_confidence': None,
-                'long_confidence': None,
+                # 'long_confidence': None,
                 'current_price': None,
                 'analysis_date': None
             }
@@ -378,11 +378,11 @@ def save_predictions_as_csv(predictions: dict[str, dict[str, any]], output_path:
                 'short_trend': prediction.get('short_trend'),
                 'long_trend': prediction.get('long_trend'),
                 'short_reversal_price': prediction.get('short_reversal_price'),
-                'long_reversal_price': prediction.get('long_reversal_price'),
+                # 'long_reversal_price': prediction.get('long_reversal_price'),
                 'short_bailout_point': prediction.get('short_bailout_point'),
-                'long_bailout_point': prediction.get('long_bailout_point'),
+                # 'long_bailout_point': prediction.get('long_bailout_point'),
                 'short_confidence': prediction.get('short_confidence'),
-                'long_confidence': prediction.get('long_confidence'),
+                # 'long_confidence': prediction.get('long_confidence'),
                 'current_price': prediction.get('current_price'),
                 'analysis_date': prediction.get('analysis_date')
             }

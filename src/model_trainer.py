@@ -100,7 +100,7 @@ class ModelTrainer:
             'short_trend_classifier': {'X': [], 'y': []},
             'long_trend_classifier': {'X': [], 'y': []},
             'short_reversal_regressor': {'X': [], 'y': []},
-            'long_reversal_regressor': {'X': [], 'y': []},
+            # 'long_reversal_regressor': {'X': [], 'y': []},
             'confidence_estimator': {'X': [], 'y': []}
         }
         
@@ -252,6 +252,7 @@ class ModelTrainer:
                 stock_data['short_reversal_regressor'] = {'X': X, 'y': y_short_reversal}
 
             # Long reversal price regression targets
+            '''
             long_ma_col = f'ma_{self.config.model.long_term_window}'
             if long_ma_col in data.columns and 'long_trend_direction' in data.columns:
                 y_long_reversal = np.full(len(data), np.nan) # Initialize target array with NaN
@@ -274,7 +275,8 @@ class ModelTrainer:
                 # Replace remaining NaNs with 0
                 y_long_reversal = np.nan_to_num(y_long_reversal, nan=0.0) 
                 stock_data['long_reversal_regressor'] = {'X': X, 'y': y_long_reversal}
-            
+            '''
+
             # Confidence estimation targets (based on trend strength and consistency)
             if 'short_trend_strength' in data.columns and 'short_trend_consistency' in data.columns:
                 confidence_score = (data['short_trend_strength'].fillna(0) * 
@@ -601,12 +603,14 @@ class ModelTrainer:
             )
         
         # Train long reversal model
+        '''
         if 'long_reversal_regressor' in training_data:
             self._train_reversal_model(
                 training_data['long_reversal_regressor'],
                 'long_reversal_regressor',
                 val_prep.get('long_reversal_regressor')
             )
+        '''
         
         # Train confidence estimator
         if 'confidence_estimator' in training_data:
