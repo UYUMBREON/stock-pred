@@ -41,10 +41,10 @@ ENV/
 .env.*.local
 
 # Data files (uncomment if you don't want to track data)
- data/
+data/
 
 # Outout files
- output/ 
+output/ 
 
 # OS
 .DS_Store
@@ -54,7 +54,7 @@ Thumbs.db
 .dockerignore
 
 # Models
- models/
+models/
 
 # outputs
 output/
