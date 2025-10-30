@@ -6,7 +6,7 @@
     "long_reversal_regressor",
     "confidence_estimator"
   ],
-  "training_date": "2025-10-29T12:33:42.352540",
+  "training_date": "2025-10-30T04:06:53.820008",
   "config": {
     "data": {
       "stock_list_path": "/app/data/stock_list.csv",
