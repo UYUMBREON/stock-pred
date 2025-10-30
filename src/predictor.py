@@ -155,15 +155,17 @@ class Predictor:
                 'trend_agreement', 'ma_convergence'
             ]
             
-            # Filter features that exist in the data
-            available_features = [col for col in base_features if col in data.columns]
+            feature_data = pd.DataFrame(index=data.index, columns=base_features)
+
+            # Find which of the base_features actually exist in the input `data`
+            cols_to_copy = [col for col in base_features if col in data.columns]
             
-            if not available_features:
-                logger.warning("No features available for prediction")
-                return None
+            # Copy over the data from columns that exist
+            if cols_to_copy:
+                feature_data[cols_to_copy] = data[cols_to_copy]
             
-            # Extract features and handle missing values
-            feature_data = data[available_features].ffill().fillna(0)
+            # Fill all missing data (both missing columns and NaNs in existing cols)
+            feature_data = feature_data.ffill().fillna(0)
             
             # Get the most recent sequence
             if len(feature_data) >= self.lookback_period:
