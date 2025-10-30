@@ -648,16 +648,16 @@ class Predictor:
                         'short_trend': short_pred['trend'],
                         'long_trend': long_pred['trend'],
                         'short_confidence': short_pred['confidence'],
-                        'long_confidence': long_pred['confidence']
+                        # 'long_confidence': long_pred['confidence']
                     }
                 elif prediction_type == 'reversal':
                     short_rev = self.predict_short_reversal(noisy_data)
-                    long_rev = self.predict_long_reversal(noisy_data)
+                    # long_rev = self.predict_long_reversal(noisy_data)
                     pred_result = {
                         'short_reversal_price': short_rev['price'],
-                        'long_reversal_price': long_rev['price'],
+                        # 'long_reversal_price': long_rev['price'],
                         'short_confidence': short_rev['confidence'],
-                        'long_confidence': long_rev['confidence']
+                        # 'long_confidence': long_rev['confidence']
                     }
                 else:
                     continue
@@ -1049,17 +1049,17 @@ if __name__ == "__main__":
             
             # Test reversal prediction
             short_reversal_pred = predictor.predict_short_reversal(test_data)
-            long_reversal_pred = predictor.predict_long_reversal(test_data)
+            # long_reversal_pred = predictor.predict_long_reversal(test_data)
             
             print(f"  Short reversal prediction: {short_reversal_pred}")
-            print(f"  Long reversal prediction: {long_reversal_pred}")
+            # print(f"  Long reversal prediction: {long_reversal_pred}")
             
             # Test confidence calculation
             short_confidence = predictor.calculate_confidence(test_data, 'short')
-            long_confidence = predictor.calculate_confidence(test_data, 'long')
+            # long_confidence = predictor.calculate_confidence(test_data, 'long')
             
             print(f"  Short confidence: {short_confidence:.1f}%")
-            print(f"  Long confidence: {long_confidence:.1f}%")
+            # print(f"  Long confidence: {long_confidence:.1f}%")
             
             print("\nTesting completed successfully!")
             
