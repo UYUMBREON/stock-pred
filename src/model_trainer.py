@@ -21,6 +21,7 @@ from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, accuracy_score, classification_report
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 import joblib
+from scipy.signal import find_peaks
 
 # TensorFlow/Keras imports
 try:
@@ -199,18 +200,79 @@ class ModelTrainer:
                 y_long_trend = data['long_trend_direction'].fillna(0).values
                 stock_data['long_trend_classifier'] = {'X': X, 'y': y_long_trend}
             
+            def find_next_reversal(current_index, trend_direction, ma_series, price_series, lookahead_limit):
+                future_ma = ma_series[current_index + 1 : current_index + 1 + lookahead_limit]
+                future_prices = price_series[current_index + 1 : current_index + 1 + lookahead_limit]
+
+                if len(future_ma) < 3: # Need at least a few points to find a peak/trough reliably
+                    return np.nan 
+
+                reversal_index = -1
+                if trend_direction == 1: # Current trend is UP, look for next PEAK
+                    peaks, _ = find_peaks(future_ma.values)
+                    if len(peaks) > 0:
+                        reversal_index = peaks[0] 
+                elif trend_direction == -1: # Current trend is DOWN, look for next TROUGH
+                    troughs, _ = find_peaks(-future_ma.values)
+                    if len(troughs) > 0:
+                        reversal_index = troughs[0]
+                else: # Sideways trend, can't reliably predict next peak/trough target
+                    return np.nan 
+
+                if reversal_index != -1:
+                    # Return the actual closing price at the reversal point found in the MA
+                    return future_prices.iloc[reversal_index]
+                else:
+                    # No reversal found within the lookahead limit
+                    return np.nan
+
             # Short reversal price regression targets
-            if 'short_trend_slope' in data.columns:
-                # Use future price changes as reversal targets
-                future_returns = data['close'].pct_change(self.config.model.short_term_window).shift(-self.config.model.short_term_window)
-                y_short_reversal = future_returns.fillna(0).values
+            short_ma_col = f'ma_{self.config.model.short_term_window}'
+            if short_ma_col in data.columns and 'short_trend_direction' in data.columns:
+                y_short_reversal = np.full(len(data), np.nan) # Initialize target array with NaN
+                lookahead = self.config.model.short_term_window * 3 # Look ahead 3 times the window size
+
+                # Ensure required columns are not all NaN
+                if not data[short_ma_col].isnull().all() and not data['short_trend_direction'].isnull().all():
+                    ma_short = data[short_ma_col]
+                    price_close = data['close']
+                    trend_dir_short = data['short_trend_direction']
+
+                    for i in range(len(data) - lookahead): # Iterate up to where we have enough future data
+                        current_trend = trend_dir_short.iloc[i]
+                        if not pd.isna(current_trend) and current_trend != 0: # Only calculate for defined up/down trends
+                            next_rev_price = find_next_reversal(i, current_trend, ma_short, price_close, lookahead)
+                            if not pd.isna(next_rev_price) and not pd.isna(price_close.iloc[i]) and price_close.iloc[i] > 0:
+                                # Target: Relative difference between reversal price and current price
+                                y_short_reversal[i] = (next_rev_price - price_close.iloc[i]) / price_close.iloc[i]
+
+                # Replace remaining NaNs (e.g., end of series, sideways trends, no reversal found) with 0
+                # A zero target means predict no change from current price in these cases.
+                y_short_reversal = np.nan_to_num(y_short_reversal, nan=0.0) 
                 stock_data['short_reversal_regressor'] = {'X': X, 'y': y_short_reversal}
-            
+
             # Long reversal price regression targets
-            if 'long_trend_slope' in data.columns:
-                # Use future price changes as reversal targets
-                future_returns = data['close'].pct_change(self.config.model.long_term_window).shift(-self.config.model.long_term_window)
-                y_long_reversal = future_returns.fillna(0).values
+            long_ma_col = f'ma_{self.config.model.long_term_window}'
+            if long_ma_col in data.columns and 'long_trend_direction' in data.columns:
+                y_long_reversal = np.full(len(data), np.nan) # Initialize target array with NaN
+                lookahead = self.config.model.long_term_window * 3 # Look ahead 3 times the window size
+
+                # Ensure required columns are not all NaN
+                if not data[long_ma_col].isnull().all() and not data['long_trend_direction'].isnull().all():
+                    ma_long = data[long_ma_col]
+                    price_close = data['close']
+                    trend_dir_long = data['long_trend_direction']
+
+                    for i in range(len(data) - lookahead): # Iterate up to where we have enough future data
+                        current_trend = trend_dir_long.iloc[i]
+                        if not pd.isna(current_trend) and current_trend != 0: # Only calculate for defined up/down trends
+                            next_rev_price = find_next_reversal(i, current_trend, ma_long, price_close, lookahead)
+                            if not pd.isna(next_rev_price) and not pd.isna(price_close.iloc[i]) and price_close.iloc[i] > 0:
+                                # Target: Relative difference between reversal price and current price
+                                y_long_reversal[i] = (next_rev_price - price_close.iloc[i]) / price_close.iloc[i]
+
+                # Replace remaining NaNs with 0
+                y_long_reversal = np.nan_to_num(y_long_reversal, nan=0.0) 
                 stock_data['long_reversal_regressor'] = {'X': X, 'y': y_long_reversal}
             
             # Confidence estimation targets (based on trend strength and consistency)
